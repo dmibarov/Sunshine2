@@ -4,5 +4,8 @@
     <string name="action_settings">Settings</string>
     <string name="action_refresh" translatable="false">Refresh</string>
     <string name="hello_world">Hello world!</string>
+    <string name="pref_location_key">127081</string>
+    <string name="pref_location_default">93876</string>
+    <string name="title_activity_detail">Details</string>
 
 </resources>
