@@ -1,4 +1,4 @@
-package com.example.android.sunshine2.app.data;
+package com.example.android.sunshine.app.data;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,8 +10,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.test.AndroidTestCase;
 
-import com.example.android.sunshine.app.data.WeatherContract;
-import com.example.android.sunshine.app.data.WeatherDbHelper;
+import com.example.android.sunshine2.app.data.WeatherContract;
+import com.example.android.sunshine2.app.data.WeatherDbHelper;
 import com.example.android.sunshine.app.utils.PollingCheck;
 
 import java.util.Map;
