@@ -6,6 +6,7 @@ package com.example.android.sunshine2.app;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.example.android.sunshine2.app.data.WeatherContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,7 +53,11 @@ import java.util.List;
 public class ForecastFragment extends Fragment {
 
 
-    public ArrayAdapter<String> mForecastAdapter;
+    private ForecastAdapter mForecastAdapter;
+
+    public ForecastFragment(){
+
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,12 +73,10 @@ public class ForecastFragment extends Fragment {
     }
 
     private void weatherUpdate(){
-        FetchWeatherTask newFetch = new FetchWeatherTask(getActivity(), mForecastAdapter);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String location = prefs.getString(getString(R.string.pref_location_key),
-                                            getString(R.string.pref_location_default));
+       FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
+        String location = Utility.getPreferredLocation(getActivity());
 
-        newFetch.execute(location);
+        weatherTask.execute(location);
     }
 
     @Override
@@ -96,35 +101,23 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        String locationSetting = Utility.getPreferredLocation(getActivity());
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + "ASC";
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                locationSetting, System.currentTimeMillis());
 
-        String[] forecastArray = {
-                "Today - Sunny - 12/3",
-                "Tomorrow - Foggy - 3/0",
-                "Weds - Cloudy - 10/4",
-                "Thurs - Sunny - 10/8",
-                "Fri - Rain - 5/4",
-                "Sat - very Cold - 0/0",
-                "Sun - Sunny - 20/20"
-        };
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(forecastArray));
-        mForecastAdapter =
-                new ArrayAdapter<String>(
-                        getActivity(),
-                        R.layout.list_item_forecast,
-                        R.id.list_item_forecast_textview,
-                        weekForecast);
+        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
+                null,
+                null,
+                null,
+                sortOrder);
+
+        mForecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
+
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String forecast = mForecastAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, forecast);
-                startActivity(intent);
-            }
-        });
+
 
 
         return rootView;
